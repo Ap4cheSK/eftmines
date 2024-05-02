@@ -10,7 +10,7 @@ function App() {
 			<HashRouter>
 				<Routes>
 					<Route index path='/' element={<Homepage/>} />
-					<Route path='/game' element={<GamePage/>} />
+					<Route path='/game/:difficulty' element={<GamePage/>} />
 				</Routes>
 			</HashRouter>
 		</>
