@@ -3,8 +3,14 @@ import { useParams } from "react-router-dom";
 import Minesweeper from "./Minesweeper";
 import AppHeader from "./AppHeader";
 
+type GameArray = {
+	type: string;
+	opened: boolean;
+	flag: boolean;
+}[][];
+
 interface gameBoardInterface {
-	board: string[][];
+	board: GameArray;
 	sizeX: number;
 	sizeY: number;
 	showMines: boolean;
@@ -15,10 +21,9 @@ interface gameBoardInterface {
 }
 
 interface CellInterface {
-	isMine: boolean;
 	flag: boolean;
-	show: boolean;
-	minesNear: number;
+	opened: boolean;
+	type: string;
 	rowIdx: number;
 	cellIdx: number;
 	moveX: React.Dispatch<React.SetStateAction<number>>
@@ -59,27 +64,21 @@ function Cell(cell: CellInterface) {
 		cell.moveTimestamp(Date.now());
 	}
 
-	if(!cell.show) {
+	if(!cell.opened) {
 		return (
 			<div onClick={handleClick} onContextMenu={handleClick} className="game-cell"></div>
 		);
 	}
 
-	if(cell.show) {
-		if(cell.isMine) {
+	if(cell.opened) {
+		if(cell.type === "X") {
 			return (
 				<div onClick={handleClick} onContextMenu={handleClick} className="game-cell mine"><i className="fa-solid fa-bomb"></i></div>
 			);
 		}
 
-		if(cell.minesNear === 0) {
-			return (
-				<div onClick={handleClick} onContextMenu={handleClick} className="game-cell number"></div>
-			);
-		}
-
 		return (
-			<div onClick={handleClick} onContextMenu={handleClick} className="game-cell number">{cell.minesNear}</div>
+			<div onClick={handleClick} onContextMenu={handleClick} className="game-cell number">{cell.type}</div>
 		);
 	}
 
@@ -117,10 +116,9 @@ function GameBoard(game: gameBoardInterface) {
 							rowIdx={rowIdx}
 							cellIdx={cellIdx}
 							key={cellIdx}
-							isMine={cell === "X" ? true : false}
-							flag={cell === "F" ? true : false}
-							show={false}
-							minesNear={isNaN(parseInt(cell)) ? 0 : parseInt(cell)}
+							type={cell.type}
+							flag={cell.flag ? true : false}
+							opened={cell.opened}
 						/>
 					))}
 				</div>
@@ -131,7 +129,7 @@ function GameBoard(game: gameBoardInterface) {
 
 function GamePage() {
 	const { difficulty } = useParams();
-	const [boardData, setBoardData] = useState<string[][]>([]);
+	const [boardData, setBoardData] = useState<GameArray>([]);
 	const [sizeX, setSizeX] = useState(0);
 	const [sizeY, setSizeY] = useState(0);
 	const [showMines, setShowMines] = useState(false);
@@ -140,16 +138,17 @@ function GamePage() {
 	const [moveType, setMoveType] = useState(-1);
 	const [moveTimestamp, setMoveTimestamp] = useState(-1);
 
+	const gameInitX = [8, 8, 12];
+	const gameInitY = [8, 12, 12];
+	const gameInitMines = [12, 24, 32];
+	
+	let diff = 0;
+	if(difficulty)
+		diff = parseInt(difficulty);
+
+	const game = new Minesweeper(gameInitX[diff], gameInitY[diff], gameInitMines[diff]);
+
 	useEffect(() => {
-		const gameInitX = [8, 8, 12];
-		const gameInitY = [8, 12, 12];
-		const gameInitMines = [12, 24, 32];
-		let diff = 0;
-
-		if(difficulty)
-			diff = parseInt(difficulty);
-
-		const game = new Minesweeper(gameInitX[diff], gameInitY[diff], gameInitMines[diff]);
 		game.initBoard();
 
 		setBoardData(game.board);
@@ -163,10 +162,10 @@ function GamePage() {
 		if(moveX !== -1 && moveY !== -1 && moveType !== -1 && moveTimestamp !== -1) {
 			console.log(`X:${moveX} Y:${moveY} T:${moveType}`);
 
-			setMoveX(-1);
-			setMoveY(-1);
-			setMoveType(-1);
+			game.openCell(moveY, moveX);
+			setBoardData(game.board);
 		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [moveX, moveY, moveType, moveTimestamp]);
 
 	return (
@@ -181,7 +180,7 @@ function GamePage() {
 					moveType={setMoveType}
 					board={boardData}
 					sizeX={sizeX}
-					sizeY={sizeY} 
+					sizeY={sizeY}
 					showMines={showMines}
 				/>
 			</main>

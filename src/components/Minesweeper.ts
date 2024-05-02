@@ -4,11 +4,18 @@
  * @param {number} sizeY - Height of gameboard
  * @param {number} mines - Number of mines in gameboard
  */
+
+type GameArray = {
+	type: string;
+	opened: boolean;
+	flag: boolean;
+}[][];
+
 class Minesweeper {
 	sizeX: number;
 	sizeY: number;
 	mines: number;
-	board: string[][] = [];
+	board: GameArray = [];
 
 	constructor(sizeX: number, sizeY: number, mines: number) {
 		this.sizeX = sizeX;
@@ -18,7 +25,11 @@ class Minesweeper {
 		for(let row = 0; row < this.sizeY; row++) {
 			this.board[row] = [];
 			for(let column = 0; column < this.sizeX; column++) {
-				this.board[row][column] = "_";
+				this.board[row][column] = {
+					type: "0",
+					opened: false,
+					flag: false
+				}
 			}
 		}
 	}
@@ -41,10 +52,10 @@ class Minesweeper {
 			const genPosX = this.generateRandomPos(this.sizeX);
 			const genPosY = this.generateRandomPos(this.sizeY);
 
-			if(this.board[genPosY][genPosX] === "X")
+			if(this.board[genPosY][genPosX].type === "X")
 				continue; // If mine already present at position
 
-			this.board[genPosY][genPosX] = "X";
+			this.board[genPosY][genPosX].type = "X";
 			minesGenerated++;
 		}
 	}
@@ -53,7 +64,7 @@ class Minesweeper {
 	 * Minesweeper internal method
 	 */
 	generateIndicator(posY: number, posX: number) {
-		if(this.board[posY][posX] === "X") {
+		if(this.board[posY][posX].type === "X") {
 			return "X";
 		}
 
@@ -78,13 +89,10 @@ class Minesweeper {
 
 		for(let row = startY; row <= endY; row++) {
 			for(let column = startX; column <= endX; column++) {
-				if(this.board[row][column] === "X")
+				if(this.board[row][column].type === "X")
 					minesNearby++;
 			}
 		}
-
-		if(minesNearby === 0)
-			return "_";
 
 		return minesNearby.toString();
 	}
@@ -95,7 +103,7 @@ class Minesweeper {
 	generateMineIndicators() {
 		for(let row = 0; row < this.sizeY; row++) {
 			for(let column = 0; column < this.sizeX; column++) {
-				this.board[row][column] = this.generateIndicator(row, column);
+				this.board[row][column].type = this.generateIndicator(row, column);
 			}
 		}
 	}
@@ -117,11 +125,19 @@ class Minesweeper {
 			let rowString = "";
 
 			for(let column = 0; column < this.sizeX; column++) {
-				rowString = rowString + this.board[row][column] + " ";
+				rowString = rowString + this.board[row][column].type + " ";
 			}
 
 			console.log(rowString);
 		}
+	}
+
+	openCell(posY: number, posX: number) {
+		if(this.board[posY][posX].opened === false) {
+			this.board[posY][posX].opened = true;
+		}
+
+		this.printBoard();
 	}
 }
 
