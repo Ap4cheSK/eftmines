@@ -15,12 +15,14 @@ class Minesweeper {
 	sizeY: number;
 	mines: number;
 	status: string;
+	flags: number
 	board: GameArray = [];
 
-	constructor(sizeX: number, sizeY: number, mines: number) {
+	constructor(sizeX: number, sizeY: number, mines: number, flagCount: number) {
 		this.sizeX = sizeX;
 		this.sizeY = sizeY;
 		this.mines = mines;
+		this.flags = flagCount;
 		this.status = "playing";
 
 		for(let row = 0; row < this.sizeY; row++) {
@@ -247,21 +249,46 @@ class Minesweeper {
 	/**
 	 * Method to set game as lost
 	 * sets game status and opens whole gameboard so user can see all cells
+	 * @private [INTERNAL] => should not be used out of this file/module
 	 */
 	setGameOver() {
-		this.status = "failed";
+		this.status = "lost";
 
 		for(let row = 0; row < this.sizeY; row++) {
 			for(let column = 0; column < this.sizeX; column++) {
 				this.board[row][column].opened = true;
+				this.board[row][column].flag = false;
 			}
 		}
 	}
 
 	/**
+	 * Method to check if game was won
+	 * if yes, sets game status and opens whole gameboard so user can see all cells
+	 * @private [INTERNAL] => should not be used out of this file/module
+	 */
+	checkWin() {
+		let isWon = true;
+
+		for(let row = 0; row < this.sizeY; row++) {
+			for(let column = 0; column < this.sizeX; column++) {
+				if(this.board[row][column].type !== "X" && !this.board[row][column].opened) {
+					isWon = false;
+					return;
+				}
+			}
+		}
+
+		if(isWon)
+			this.status = "won";
+	}
+
+	/**
 	 * Method to open cell, cell open is blocked if cell is flagged
 	 * If opened cell is blank, the method auto-opens all neighboring cells recursively
-	 * Method also is responsible for game-over checking
+	 * Method is also responsible for game-over checking
+	 * Method is also responsible for game-won checking
+	 * @private [INTERNAL] => should not be used out of this file/module
 	 */
 	openCell(posY: number, posX: number) {
 		if(this.board[posY][posX].flag)
@@ -279,6 +306,7 @@ class Minesweeper {
 			if(this.board[posY][posX].type === "0")
 				this.openNearbyEmptyCells(posY, posX);
 
+			this.checkWin();
 			return;
 		}
 
@@ -286,19 +314,28 @@ class Minesweeper {
 			if(parseInt(this.board[posY][posX].type) === this.countFlags(posY, posX))
 				this.openNearbyCellsByFlags(posY, posX);
 		}
+
+		this.checkWin();
 	}
 
 	/**
 	 * Method to flag/unflag cell by right clicking it
+	 * Flag will not be placed if count of mines is already flagged.
 	 */
 	flagCell(posY: number, posX: number) {
 		if(this.board[posY][posX].opened)
 			return;
 
-		if(this.board[posY][posX].flag)
+		if(this.board[posY][posX].flag) {
 			this.board[posY][posX].flag = false;
-		else
+			this.flags--;
+		} else {
+			if(this.flags >= this.mines)
+				return;
+
 			this.board[posY][posX].flag = true;
+			this.flags++;
+		}
 	}
 }
 
