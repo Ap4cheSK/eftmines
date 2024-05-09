@@ -12,7 +12,6 @@ interface gameBoardInterface {
 	board: GameArray;
 	sizeX: number;
 	sizeY: number;
-	showMines: boolean;
 	moveX: React.Dispatch<React.SetStateAction<number>>
 	moveY: React.Dispatch<React.SetStateAction<number>>
 	moveType: React.Dispatch<React.SetStateAction<number>>
