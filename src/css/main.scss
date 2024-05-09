@@ -183,9 +183,18 @@ button, .LinkButton {
 	}
 }
 
+// Game cell
+
 .game-cell {
+	display: grid;
+	justify-items: center;
+	align-items: center;
+
 	width: 18px;
 	height: 18px;
+
+	font-weight: 600;
+	font-size: 14px;
 
 	background: url("../assets/navbar_bg.png");
 	background-position: center center;
@@ -198,17 +207,39 @@ button, .LinkButton {
 	@media(min-width: 480px) {
 		width: 28px;
 		height: 28px;
+		font-size: 16px;
 	}
 
 	@media(min-width: 720px) {
 		width: 32px;
 		height: 32px;
+		font-size: 20px;
 	}
 
 	@media(min-width: 1280px) {
 		width: 48px;
 		height: 48px;
+		font-size: 32px;
 	}
 
 	&:hover, &:active {filter: brightness(115%);}
 }
+
+	// Open cell background
+	.c-open {
+		filter: brightness(70%);
+		box-shadow: 0px 0px 5px white inset;
+	}
+
+	// Opened number cells number color
+	.c-one {color: rgb(48, 48, 255);}
+	.c-two {color: green;}
+	.c-three {color: red;}
+	.c-four {color: darkblue;}
+	.c-five {color: brown;}
+	.c-six {color: cyan;}
+	.c-seven {color: black;}
+	.c-eight {color: pink;}
+
+	// Flag cell
+	.c-flag {color: red;}
