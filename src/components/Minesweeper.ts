@@ -9,6 +9,7 @@ type GameArray = {
  * @param {number} sizeX - Width of gameboard
  * @param {number} sizeY - Height of gameboard
  * @param {number} mines - Number of mines in gameboard
+ * @param {number} flagCount - Numbers of currently placed flags (0 when first creating)
  */
 class Minesweeper {
 	sizeX: number;
@@ -130,7 +131,6 @@ class Minesweeper {
 	 */
 	loadBoard(loadedBoard: GameArray) {
 		this.board = [...loadedBoard];
-		console.log(this.board);
 	}
 
 	/**
@@ -288,20 +288,20 @@ class Minesweeper {
 	 * If opened cell is blank, the method auto-opens all neighboring cells recursively
 	 * Method is also responsible for game-over checking
 	 * Method is also responsible for game-won checking
-	 * @private [INTERNAL] => should not be used out of this file/module
+	 * @param {number} posY - Y index of game position
+	 * @param {number} posX - X index of game position
 	 */
 	openCell(posY: number, posX: number) {
 		if(this.board[posY][posX].flag)
 			return;
 
-		if(this.board[posY][posX].opened === false) {
-			this.board[posY][posX].opened = true;
-
+		if(!this.board[posY][posX].opened) {
 			if(this.board[posY][posX].type === "X") {
-				// opened mine, game over.
 				this.setGameOver();
 				return;
 			}
+
+			this.board[posY][posX].opened = true;
 
 			if(this.board[posY][posX].type === "0")
 				this.openNearbyEmptyCells(posY, posX);
