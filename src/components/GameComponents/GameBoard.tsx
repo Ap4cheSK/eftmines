@@ -24,16 +24,20 @@ function GameBoard(game: gameBoardInterface) {
 	const [moveType, setMoveType] = useState(-1);
 	const [moveTimestamp, setMoveTimestamp] = useState(0);
 
+	function disableContextMenuOnBoard(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+		event.preventDefault();
+	}
+
 	useEffect(() => {
 		game.moveX(moveX);
 		game.moveY(moveY);
 		game.moveType(moveType);
 		game.moveTimestamp(moveTimestamp);
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [moveX, moveY, moveType, moveTimestamp]);
 
 	return (
-		<section className="game-board">
+		<section className="game-board" onContextMenu={disableContextMenuOnBoard}>
 			{game.board.map((row, rowIdx) => (
 				<div className="game-row" key={rowIdx}>
 					{row.map((cell, cellIdx) => (

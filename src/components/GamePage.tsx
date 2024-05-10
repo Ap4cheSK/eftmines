@@ -30,7 +30,7 @@ function GamePage() {
 	const [time, setTime] = useState(0);
 
 	const gameDiff = [
-		// X, Y, mines
+		// Y, X, mines
 		[8, 8, 12],
 		[8, 12, 20],
 		[12, 12, 40],
