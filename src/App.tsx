@@ -1,5 +1,4 @@
 import { HashRouter, Routes, Route } from 'react-router-dom';
-// import { useEffect } from 'react';
 import Homepage from './components/Homepage';
 import GamePage from './components/GamePage';
 import "./css/main.css";
