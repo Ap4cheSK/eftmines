@@ -252,6 +252,9 @@ class Minesweeper {
 				this.generateMines(this.mines - 1);
 				this.generateMineIndicators();
 
+				if(this.board[posY][posX].type === "0")
+					this.openNearbyEmptyCells(posY, posX);
+
 				return;
 			}
 
