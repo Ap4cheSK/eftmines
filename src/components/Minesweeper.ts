@@ -10,6 +10,7 @@ type GameArray = {
  * @param {number} sizeY - Height of gameboard
  * @param {number} mines - Number of mines in gameboard
  * @param {number} flagCount - Numbers of currently placed flags (0 when first creating)
+ * @param {boolean} firstMove - Identificator if first move is being used
  */
 class Minesweeper {
 	sizeX: number;
@@ -82,22 +83,10 @@ class Minesweeper {
 		if(this.board[posY][posX].type === "X")
 			return "X";
 
-		let startY = posY - 1;
-		let startX = posX - 1;
-		let endY = posY + 1;
-		let endX = posX + 1;
-
-		if(startY < 0)
-			startY = 0;
-
-		if(startX < 0)
-			startX = 0;
-
-		if(endY >= this.sizeY)
-			endY = this.sizeY - 1;
-
-		if(endX >= this.sizeX)
-			endX = this.sizeX - 1;
+		const startY = Math.max(posY - 1, 0);
+		const startX = Math.max(posX - 1, 0);
+		const endY = Math.min(posY + 1, this.sizeY - 1);
+		const endX = Math.min(posX + 1, this.sizeX - 1);
 
 		let minesNearby = 0;
 
@@ -161,22 +150,10 @@ class Minesweeper {
 	 * @private [INTERNAL] => should not be used out of this file/module
 	 */
 	openNearbyEmptyCells(posY: number, posX: number) {
-		let startY = posY - 1;
-		let startX = posX - 1;
-		let endY = posY + 1;
-		let endX = posX + 1;
-
-		if(startY < 0)
-			startY = 0;
-
-		if(startX < 0)
-			startX = 0;
-
-		if(endY >= this.sizeY)
-			endY = this.sizeY - 1;
-
-		if(endX >= this.sizeX)
-			endX = this.sizeX - 1;
+		const startY = Math.max(posY - 1, 0);
+		const startX = Math.max(posX - 1, 0);
+		const endY = Math.min(posY + 1, this.sizeY - 1);
+		const endX = Math.min(posX + 1, this.sizeX - 1);
 
 		for(let row = startY; row <= endY; row++) {
 			for(let column = startX; column <= endX; column++) {
@@ -192,22 +169,10 @@ class Minesweeper {
 	 * @private [INTERNAL] => should not be used out of this file/module
 	 */
 	countFlags(posY: number, posX: number) {
-		let startY = posY - 1;
-		let startX = posX - 1;
-		let endY = posY + 1;
-		let endX = posX + 1;
-
-		if(startY < 0)
-			startY = 0;
-
-		if(startX < 0)
-			startX = 0;
-
-		if(endY >= this.sizeY)
-			endY = this.sizeY - 1;
-
-		if(endX >= this.sizeX)
-			endX = this.sizeX - 1;
+		const startY = Math.max(posY - 1, 0);
+		const startX = Math.max(posX - 1, 0);
+		const endY = Math.min(posY + 1, this.sizeY - 1);
+		const endX = Math.min(posX + 1, this.sizeX - 1);
 
 		let flagsNearby = 0;
 
@@ -227,22 +192,10 @@ class Minesweeper {
 	 * @private [INTERNAL] => should not be used out of this file/module
 	 */
 	openNearbyCellsByFlags(posY: number, posX: number) {
-		let startY = posY - 1;
-		let startX = posX - 1;
-		let endY = posY + 1;
-		let endX = posX + 1;
-
-		if(startY < 0)
-			startY = 0;
-
-		if(startX < 0)
-			startX = 0;
-
-		if(endY >= this.sizeY)
-			endY = this.sizeY - 1;
-
-		if(endX >= this.sizeX)
-			endX = this.sizeX - 1;
+		const startY = Math.max(posY - 1, 0);
+		const startX = Math.max(posX - 1, 0);
+		const endY = Math.min(posY + 1, this.sizeY - 1);
+		const endX = Math.min(posX + 1, this.sizeX - 1);
 
 		for(let row = startY; row <= endY; row++) {
 			for(let column = startX; column <= endX; column++) {
@@ -304,18 +257,17 @@ class Minesweeper {
 
 		if(!this.board[posY][posX].opened) {
 			if(this.board[posY][posX].type === "X") {
-				if(this.firstMove) {
-					// hit mine in first move
-					this.board[posY][posX].type = "0";
-					this.board[posY][posX].opened = true;
-
-					this.generateMines(this.mines - 1);
-					this.generateMineIndicators();
-
+				if(!this.firstMove) {
+					this.setGameOver();
 					return;
 				}
 
-				this.setGameOver();
+				this.board[posY][posX].type = "0";
+				this.board[posY][posX].opened = true;
+
+				this.generateMines(this.mines - 1);
+				this.generateMineIndicators();
+
 				return;
 			}
 
@@ -328,12 +280,8 @@ class Minesweeper {
 			return;
 		}
 
-		if(this.board[posY][posX].opened) {
-			if(parseInt(this.board[posY][posX].type) === this.countFlags(posY, posX))
-				this.openNearbyCellsByFlags(posY, posX);
-		}
-
-		this.checkWin();
+		if(parseInt(this.board[posY][posX].type) === this.countFlags(posY, posX))
+			this.openNearbyCellsByFlags(posY, posX);
 	}
 
 	/**
