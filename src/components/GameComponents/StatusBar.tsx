@@ -1,5 +1,6 @@
 interface statusBarInterface {
 	minesCount: number;
+	timer: number;
 	gameStatus: string;
 }
 
@@ -36,7 +37,7 @@ function StatusBar(status: statusBarInterface) {
 
 				<div className="status-item">
 					<h3>Time</h3>
-					<p>0</p>
+					<p>{status.timer}</p>
 				</div>
 			</section>
 
