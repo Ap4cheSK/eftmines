@@ -21,6 +21,7 @@ function GamePage() {
 	const [sizeY, setSizeY] = useState(0);
 	const [gameStatus, setGameStatus] = useState("playing");
 	const [minesCount, setMinesCount] = useState(0);
+	const [firstMove, setFirstMove] = useState(false);
 	const [moveX, setMoveX] = useState(-1);
 	const [moveY, setMoveY] = useState(-1);
 	const [moveType, setMoveType] = useState(-1);
@@ -30,15 +31,16 @@ function GamePage() {
 	const gameInitY = [8, 12, 12];
 	const gameInitMines = [12, 20, 40];
 
-	useEffect(() => {		
+	useEffect(() => {
 		let diff = 0;
 		if(difficulty)
 			diff = parseInt(difficulty);
 
-		const game = new Minesweeper(gameInitX[diff], gameInitY[diff], gameInitMines[diff], 0);
+		const game = new Minesweeper(gameInitX[diff], gameInitY[diff], gameInitMines[diff], 0, firstMove);
 
 		game.initBoard();
 
+		setFirstMove(true);
 		setBoardData(game.board);
 		setSizeX(game.sizeX);
 		setSizeY(game.sizeY);
@@ -59,7 +61,7 @@ function GamePage() {
 
 			const flagCount = gameInitMines[diff] - minesCount;
 
-			const game = new Minesweeper(gameInitX[diff], gameInitY[diff], gameInitMines[diff], flagCount);
+			const game = new Minesweeper(gameInitX[diff], gameInitY[diff], gameInitMines[diff], flagCount, firstMove);
 			
 			game.loadBoard(boardData);
 
@@ -74,6 +76,9 @@ function GamePage() {
 			setBoardData(game.board);
 			setGameStatus(game.status);
 			setMinesCount(game.mines - game.flags);
+
+			if(firstMove)
+				setFirstMove(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [moveX, moveY, moveType, moveTimestamp]);

@@ -16,15 +16,17 @@ class Minesweeper {
 	sizeY: number;
 	mines: number;
 	status: string;
-	flags: number
+	flags: number;
+	firstMove: boolean;
 	board: GameArray = [];
 
-	constructor(sizeX: number, sizeY: number, mines: number, flagCount: number) {
+	constructor(sizeX: number, sizeY: number, mines: number, flagCount: number, firstMove: boolean) {
 		this.sizeX = sizeX;
 		this.sizeY = sizeY;
 		this.mines = mines;
 		this.flags = flagCount;
 		this.status = "playing";
+		this.firstMove = firstMove;
 
 		for(let row = 0; row < this.sizeY; row++) {
 			this.board[row] = [];
@@ -51,8 +53,11 @@ class Minesweeper {
 	 * Method to generate mines for gameboard.
 	 * @private [INTERNAL] => should not be used out of this file/module
 	 */
-	generateMines() {
+	generateMines(startMineCount: number) {
 		let minesGenerated = 0;
+
+		if(startMineCount)
+			minesGenerated = startMineCount;
 
 		while(minesGenerated < this.mines) {
 			const genPosX = this.generateRandomPos(this.sizeX);
@@ -60,6 +65,9 @@ class Minesweeper {
 
 			if(this.board[genPosY][genPosX].type === "X")
 				continue; // If mine already present at position
+
+			if(this.board[genPosY][genPosX].opened)
+				continue; // If moving mine after hitting in for first time, dont put mine again in open cell
 
 			this.board[genPosY][genPosX].type = "X";
 			minesGenerated++;
@@ -71,9 +79,8 @@ class Minesweeper {
 	 * @private [INTERNAL] => should not be used out of this file/module
 	 */
 	generateIndicator(posY: number, posX: number) {
-		if(this.board[posY][posX].type === "X") {
+		if(this.board[posY][posX].type === "X")
 			return "X";
-		}
 
 		let startY = posY - 1;
 		let startX = posX - 1;
@@ -120,7 +127,7 @@ class Minesweeper {
 	 * Method to initialize board. Generate mines, generate mine indicators (numbers)
 	 */
 	initBoard() {
-		this.generateMines();
+		this.generateMines(0);
 		this.generateMineIndicators();
 	}
 
@@ -286,8 +293,8 @@ class Minesweeper {
 	/**
 	 * Method to open cell, cell open is blocked if cell is flagged
 	 * If opened cell is blank, the method auto-opens all neighboring cells recursively
-	 * Method is also responsible for game-over checking
-	 * Method is also responsible for game-won checking
+	 * Method is also responsible for game-lost and game-won checking
+	 * Method is also responsible for preventing of first-move-mine-hit
 	 * @param {number} posY - Y index of game position
 	 * @param {number} posX - X index of game position
 	 */
@@ -297,6 +304,17 @@ class Minesweeper {
 
 		if(!this.board[posY][posX].opened) {
 			if(this.board[posY][posX].type === "X") {
+				if(this.firstMove) {
+					// hit mine in first move
+					this.board[posY][posX].type = "0";
+					this.board[posY][posX].opened = true;
+
+					this.generateMines(this.mines - 1);
+					this.generateMineIndicators();
+
+					return;
+				}
+
 				this.setGameOver();
 				return;
 			}
