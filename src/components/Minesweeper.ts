@@ -130,22 +130,6 @@ class Minesweeper {
 	}
 
 	/**
-	 * [DEBUG] Prints game board, meant to debug behaviours of the game logic
-	 */
-	printBoard() {
-		console.log("Game Board:")
-		for(let row = 0; row < this.sizeY; row++) {
-			let rowString = "";
-
-			for(let column = 0; column < this.sizeX; column++) {
-				rowString = rowString + this.board[row][column].type + " ";
-			}
-
-			console.log(rowString);
-		}
-	}
-
-	/**
 	 * Method that opens nearby cells
 	 * @private [INTERNAL] => should not be used out of this file/module
 	 */
